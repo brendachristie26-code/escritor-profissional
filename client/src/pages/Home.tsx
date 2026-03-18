@@ -150,7 +150,7 @@ export default function Home() {
           {/* Right Column - Form and Preview */}
           <div className="lg:col-span-2 space-y-8">
             {/* Form Section */}
-            <Card className="p-6 border border-border">
+            <Card className="p-6 border border-[#f0f0f0] shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
               <h2 className="text-2xl font-bold mb-6 text-foreground">{template.title}</h2>
               <p className="text-sm text-muted-foreground mb-6">{template.description}</p>
               <DocumentForm
@@ -162,7 +162,7 @@ export default function Home() {
 
             {/* Preview Section */}
             <div ref={previewRef} className="scroll-mt-24">
-              <Card className="p-6 border border-border">
+              <Card className="p-6 border border-[#f0f0f0] shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
                 <DocumentPreview
                   document={generatedDocument}
                   title={template.title}

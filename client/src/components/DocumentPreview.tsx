@@ -102,11 +102,12 @@ export function DocumentPreview({
           className="w-full min-h-96 p-4 font-mono text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-none"
         />
       ) : (
-        <div className="relative">
-          {/* Simulação de papel com borda tracejada */}
-          <div className="absolute inset-0 border-2 border-dashed border-gray-300 rounded-lg pointer-events-none" />
-          <div className="bg-white border-2 border-solid border-gray-200 rounded-lg p-8 min-h-96 whitespace-pre-wrap text-sm leading-relaxed font-serif text-foreground overflow-y-auto shadow-lg">
-            {displayDocument}
+        /* Estilo Folha A4 Premium */
+        <div className="bg-gray-100 p-8 rounded-lg min-h-96 flex items-center justify-center">
+          <div className="bg-white w-full max-w-2xl p-12 rounded-lg shadow-lg border border-gray-200">
+            <div className="whitespace-pre-wrap text-sm leading-relaxed font-serif text-foreground overflow-y-auto max-h-96">
+              {displayDocument}
+            </div>
           </div>
         </div>
       )}

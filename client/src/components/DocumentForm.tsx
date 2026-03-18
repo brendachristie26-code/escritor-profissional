@@ -4,7 +4,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MaskedInput } from '@/components/MaskedInput';
-import { CheckCircle2, Circle } from 'lucide-react';
 
 interface DocumentFormProps {
   template: DocumentTemplate;
@@ -17,13 +16,13 @@ export function DocumentForm({ template, formData, onFieldChange }: DocumentForm
   const filledRequiredFields = requiredFields.filter(f => formData[f.id]?.trim()).length;
   const completionPercentage = Math.round((filledRequiredFields / requiredFields.length) * 100);
 
-  // Separar campos por tipo para melhor layout
+  // Separar campos por tipo
   const textareaFields = template.fields.filter(f => f.type === 'textarea');
   const otherFields = template.fields.filter(f => f.type !== 'textarea');
 
   return (
     <div className="space-y-6">
-      {/* Progress Bar - Destacada */}
+      {/* Progress Bar - Destacada com Premium Look */}
       <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-bold text-foreground">Progresso do Formulário</span>
@@ -40,11 +39,11 @@ export function DocumentForm({ template, formData, onFieldChange }: DocumentForm
         </p>
       </div>
 
-      {/* Campos em 2 Colunas */}
+      {/* Campos em 3 Colunas */}
       <div className="space-y-6">
-        {/* Renderizar campos não-textarea em 2 colunas */}
+        {/* Renderizar campos não-textarea em 3 colunas */}
         {otherFields.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {otherFields.map(field => {
               const isFilled = formData[field.id]?.trim() ? true : false;
               const isRequired = field.required;
@@ -56,17 +55,38 @@ export function DocumentForm({ template, formData, onFieldChange }: DocumentForm
                       {field.label}
                     </Label>
                     {isRequired && (
-                      isFilled ? (
-                        <CheckCircle2 size={16} className="text-green-600 flex-shrink-0" />
-                      ) : (
-                        <Circle size={16} className="text-destructive flex-shrink-0" />
-                      )
+                      <div
+                        className="flex-shrink-0 w-5 h-5 rounded-full border border-[#ff4d4d] flex items-center justify-center"
+                        style={{
+                          backgroundColor: isFilled ? '#ff4d4d' : 'transparent',
+                        }}
+                      >
+                        {isFilled && (
+                          <svg
+                            className="w-3 h-3 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                      </div>
                     )}
                   </div>
 
                   {field.type === 'select' && field.options ? (
                     <Select value={formData[field.id] || ''} onValueChange={(value) => onFieldChange(field.id, value)}>
-                      <SelectTrigger className={`${isRequired && !isFilled ? 'border-destructive/50 bg-red-50/30' : ''}`}>
+                      <SelectTrigger
+                        className={`border-l-4 transition-all ${
+                          isRequired && !isFilled
+                            ? 'border-l-[#ff4d4d] bg-red-50/20'
+                            : 'border-l-primary'
+                        }`}
+                      >
                         <SelectValue placeholder={field.placeholder} />
                       </SelectTrigger>
                       <SelectContent>
@@ -84,7 +104,11 @@ export function DocumentForm({ template, formData, onFieldChange }: DocumentForm
                       placeholder={field.placeholder}
                       value={formData[field.id] || ''}
                       onChange={(value) => onFieldChange(field.id, value)}
-                      className={`${isRequired && !isFilled ? 'border-destructive/50 bg-red-50/30' : ''}`}
+                      className={`border-l-4 transition-all ${
+                        isRequired && !isFilled
+                          ? 'border-l-[#ff4d4d] bg-red-50/20'
+                          : 'border-l-primary'
+                      }`}
                     />
                   ) : (
                     <Input
@@ -94,7 +118,11 @@ export function DocumentForm({ template, formData, onFieldChange }: DocumentForm
                       value={formData[field.id] || ''}
                       onChange={(e) => onFieldChange(field.id, e.target.value)}
                       maxLength={field.maxLength}
-                      className={`${isRequired && !isFilled ? 'border-destructive/50 bg-red-50/30' : ''}`}
+                      className={`border-l-4 transition-all ${
+                        isRequired && !isFilled
+                          ? 'border-l-[#ff4d4d] bg-red-50/20'
+                          : 'border-l-primary'
+                      }`}
                     />
                   )}
                 </div>
@@ -117,11 +145,26 @@ export function DocumentForm({ template, formData, onFieldChange }: DocumentForm
                       {field.label}
                     </Label>
                     {isRequired && (
-                      isFilled ? (
-                        <CheckCircle2 size={16} className="text-green-600 flex-shrink-0 mt-1" />
-                      ) : (
-                        <Circle size={16} className="text-destructive flex-shrink-0 mt-1" />
-                      )
+                      <div
+                        className="flex-shrink-0 w-5 h-5 rounded-full border border-[#ff4d4d] flex items-center justify-center mt-1"
+                        style={{
+                          backgroundColor: isFilled ? '#ff4d4d' : 'transparent',
+                        }}
+                      >
+                        {isFilled && (
+                          <svg
+                            className="w-3 h-3 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                      </div>
                     )}
                   </div>
                   <Textarea
@@ -129,7 +172,11 @@ export function DocumentForm({ template, formData, onFieldChange }: DocumentForm
                     placeholder={field.placeholder}
                     value={formData[field.id] || ''}
                     onChange={(e) => onFieldChange(field.id, e.target.value)}
-                    className={`min-h-32 resize-none ${isRequired && !isFilled ? 'border-destructive/50 bg-red-50/30' : ''}`}
+                    className={`min-h-32 resize-none border-l-4 transition-all ${
+                      isRequired && !isFilled
+                        ? 'border-l-[#ff4d4d] bg-red-50/20'
+                        : 'border-l-primary'
+                    }`}
                   />
                 </div>
               );
