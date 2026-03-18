@@ -1,6 +1,7 @@
 import { Copy, Download, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { generatePDF } from '@/lib/pdfGenerator';
 
 interface DocumentPreviewProps {
   document: string;
@@ -68,14 +69,14 @@ export function DocumentPreview({
   };
 
   const handleDownload = () => {
-    const element = globalThis.document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(displayDocument));
-    element.setAttribute('download', `${title}-${new Date().getTime()}.txt`);
-    element.style.display = 'none';
-    globalThis.document.body.appendChild(element);
-    element.click();
-    globalThis.document.body.removeChild(element);
-    toast.success('Documento baixado com sucesso!');
+    try {
+      const filename = `${title.toLowerCase().replace(/\s+/g, '-')}-${new Date().getTime()}`;
+      generatePDF(displayDocument, filename);
+      toast.success('PDF baixado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao gerar PDF');
+      console.error(error);
+    }
   };
 
   return (
@@ -134,10 +135,10 @@ export function DocumentPreview({
           onClick={handleDownload}
           variant="outline"
           className="w-full flex items-center justify-center gap-2 h-12 hover:bg-primary hover:text-primary-foreground transition-all"
-          title="Baixar documento como arquivo .txt"
+          title="Baixar documento como arquivo PDF"
         >
           <Download size={18} />
-          <span className="hidden sm:inline">Baixar</span>
+          <span className="hidden sm:inline">PDF</span>
         </Button>
       </div>
     </div>
