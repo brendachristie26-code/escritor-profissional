@@ -84,9 +84,9 @@ export function DocumentPreview({
         <h2 className="text-2xl font-bold text-foreground">Visualização</h2>
         <button
           onClick={() => onEditModeChange(!editMode)}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
             editMode
-              ? 'bg-primary text-primary-foreground'
+              ? 'bg-primary text-primary-foreground shadow-md'
               : 'bg-secondary text-foreground hover:bg-muted'
           }`}
         >
@@ -101,17 +101,21 @@ export function DocumentPreview({
           className="w-full min-h-96 p-4 font-mono text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-none"
         />
       ) : (
-        <div className="bg-white border border-border rounded-md p-8 min-h-96 whitespace-pre-wrap text-sm leading-relaxed font-serif text-foreground overflow-y-auto shadow-inner">
-          {displayDocument}
+        <div className="relative">
+          {/* Simulação de papel com borda tracejada */}
+          <div className="absolute inset-0 border-2 border-dashed border-gray-300 rounded-lg pointer-events-none" />
+          <div className="bg-white border-2 border-solid border-gray-200 rounded-lg p-8 min-h-96 whitespace-pre-wrap text-sm leading-relaxed font-serif text-foreground overflow-y-auto shadow-lg">
+            {displayDocument}
+          </div>
         </div>
       )}
 
       {/* Action Buttons */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3 pt-2">
         <Button
           onClick={handleCopy}
           variant="outline"
-          className="w-full flex items-center justify-center gap-2 h-12 hover:bg-primary hover:text-primary-foreground transition-colors"
+          className="w-full flex items-center justify-center gap-2 h-12 hover:bg-primary hover:text-primary-foreground transition-all"
           title="Copiar documento para área de transferência"
         >
           <Copy size={18} />
@@ -120,7 +124,7 @@ export function DocumentPreview({
         <Button
           onClick={handlePrint}
           variant="outline"
-          className="w-full flex items-center justify-center gap-2 h-12 hover:bg-primary hover:text-primary-foreground transition-colors"
+          className="w-full flex items-center justify-center gap-2 h-12 hover:bg-primary hover:text-primary-foreground transition-all"
           title="Imprimir documento"
         >
           <Printer size={18} />
@@ -129,7 +133,7 @@ export function DocumentPreview({
         <Button
           onClick={handleDownload}
           variant="outline"
-          className="w-full flex items-center justify-center gap-2 h-12 hover:bg-primary hover:text-primary-foreground transition-colors"
+          className="w-full flex items-center justify-center gap-2 h-12 hover:bg-primary hover:text-primary-foreground transition-all"
           title="Baixar documento como arquivo .txt"
         >
           <Download size={18} />

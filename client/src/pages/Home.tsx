@@ -130,8 +130,8 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <div className="container py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Column - Sidebar */}
           <div className={`${sidebarOpen ? 'block' : 'hidden'} lg:block lg:col-span-1`}>
             <Card className="p-6 border border-border sticky top-24">
