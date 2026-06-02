@@ -1,120 +1,60 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState, useRef, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Copy, Download, Printer, ChevronLeft, ChevronRight } from 'lucide-react';
-import { DOCUMENT_TEMPLATES, DocumentType } from '@/../../shared/documentTypes';
+import { Button } from '@/components/ui/button';
 import { DocumentForm } from '@/components/DocumentForm';
-import { DocumentSelector } from '@/components/DocumentSelector';
 import { DocumentPreview } from '@/components/DocumentPreview';
-import { toast } from 'sonner';
+import { DocumentSelector } from '@/components/DocumentSelector';
+import { DOCUMENT_TEMPLATES } from '@/../../shared/documentTypes';
 
 export default function Home() {
-  const [selectedDoc, setSelectedDoc] = useState<DocumentType>('declaracao');
+  const [selectedDoc, setSelectedDoc] = useState<any>('declaracao');
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [editMode, setEditMode] = useState(false);
   const [editedDocument, setEditedDocument] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  const template = DOCUMENT_TEMPLATES[selectedDoc];
+  const template = (DOCUMENT_TEMPLATES as any)[selectedDoc] || Object.values(DOCUMENT_TEMPLATES)[0];
 
-  const generatedDocument = useMemo(() => {
-    if (editMode && editedDocument) {
-      return editedDocument;
+  // Agrupar templates por categoria
+  const groupedTemplates = Object.values(DOCUMENT_TEMPLATES).reduce((acc: Record<string, any[]>, tmpl: any) => {
+    const category = tmpl.category;
+    if (!acc[category]) {
+      acc[category] = [];
     }
-    return template.template(formData);
-  }, [template, formData, editMode, editedDocument]);
+    acc[category].push(tmpl);
+    return acc;
+  }, {});
 
-  const handleFieldChange = (fieldId: string, value: string) => {
-    setFormData(prev => ({ ...prev, [fieldId]: value }));
-    setEditMode(false);
-    
-    // Scroll to preview on mobile
-    if (window.innerWidth < 1024 && previewRef.current) {
-      setTimeout(() => {
-        previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
-  };
-
-  const handleDocumentChange = (docType: DocumentType) => {
-    setSelectedDoc(docType);
+  const handleDocumentChange = (docType: any) => {
+    setSelectedDoc(docType as any);
     setFormData({});
     setEditMode(false);
+    setEditedDocument('');
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(generatedDocument);
-    toast.success('Documento copiado para a área de transferência!');
+  const handleFieldChange = (fieldId: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [fieldId]: value,
+    }));
   };
 
-  const handlePrint = () => {
-    const printWindow = window.open('', '', 'height=600,width=800');
-    if (printWindow) {
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html lang="pt-BR">
-          <head>
-            <meta charset="UTF-8" />
-            <title>${template.title}</title>
-            <style>
-              * { margin: 0; padding: 0; box-sizing: border-box; }
-              body { 
-                font-family: 'Georgia', serif; 
-                line-height: 1.8; 
-                margin: 40px; 
-                color: #1a1a1a;
-                background: white;
-              }
-              h1 { font-family: 'Georgia', serif; margin-bottom: 30px; font-size: 24px; }
-              pre { 
-                white-space: pre-wrap; 
-                word-wrap: break-word;
-                font-family: 'Georgia', serif;
-                line-height: 1.8;
-              }
-              @media print {
-                body { margin: 20px; }
-              }
-            </style>
-          </head>
-          <body>
-            <pre>${generatedDocument}</pre>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      setTimeout(() => printWindow.print(), 250);
+  // Gerar documento baseado no template e dados
+  const generatedDocument = (template as any).template(formData);
+
+  // Auto-scroll para preview quando documento é gerado
+  useEffect(() => {
+    if (generatedDocument && previewRef.current) {
+      previewRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  };
-
-  const handleDownload = () => {
-    const element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(generatedDocument));
-    element.setAttribute('download', `${template.id}-${new Date().getTime()}.txt`);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    toast.success('Documento baixado com sucesso!');
-  };
-
-  // Group templates by category
-  const groupedTemplates = useMemo(() => {
-    const groups: Record<string, typeof DOCUMENT_TEMPLATES[DocumentType][]> = {};
-    Object.values(DOCUMENT_TEMPLATES).forEach(doc => {
-      if (!groups[doc.category]) {
-        groups[doc.category] = [];
-      }
-      groups[doc.category].push(doc);
-    });
-    return groups;
-  }, []);
+  }, [generatedDocument]);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border bg-card shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-border bg-card">
         <div className="container py-4 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Escritor Profissional</h1>
@@ -124,22 +64,22 @@ export default function Home() {
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="lg:hidden p-2 hover:bg-secondary rounded-md transition-colors"
           >
-            {sidebarOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
+            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="container py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-6">
           {/* Left Column - Sidebar */}
           <div className={`${sidebarOpen ? 'block' : 'hidden'} lg:block lg:col-span-1`}>
-            <Card className="p-6 border border-border sticky top-24">
+            <Card className="p-4 border border-border sticky top-24">
               <h2 className="text-lg font-bold mb-4 text-foreground">Documentos</h2>
               <DocumentSelector
-                selectedDoc={selectedDoc}
-                onSelect={(docType) => {
-                  handleDocumentChange(docType);
+                selectedDoc={selectedDoc as any}
+                onSelect={(docType: any) => {
+                  handleDocumentChange(docType as any);
                   setSidebarOpen(false);
                 }}
                 groupedTemplates={groupedTemplates}
@@ -147,22 +87,24 @@ export default function Home() {
             </Card>
           </div>
 
-          {/* Right Column - Form and Preview */}
-          <div className="lg:col-span-2 space-y-8">
+          {/* Center Column - Form */}
+          <div className="lg:col-span-2">
             {/* Form Section */}
-            <Card className="p-6 border border-[#f0f0f0] shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
-              <h2 className="text-2xl font-bold mb-6 text-foreground">{template.title}</h2>
-              <p className="text-sm text-muted-foreground mb-6">{template.description}</p>
+            <Card className="p-4 border border-[#f0f0f0] shadow-[0_10px_30px_rgba(0,0,0,0.02)] h-fit sticky top-24">
+              <h2 className="text-lg font-bold mb-2 text-foreground">{template.title}</h2>
+              <p className="text-xs text-muted-foreground mb-3">{template.description}</p>
               <DocumentForm
-                template={template}
+                template={template as any}
                 formData={formData}
                 onFieldChange={handleFieldChange}
               />
             </Card>
+          </div>
 
-            {/* Preview Section */}
+          {/* Right Column - Preview */}
+          <div className="lg:col-span-2">
             <div ref={previewRef} className="scroll-mt-24">
-              <Card className="p-6 border border-[#f0f0f0] shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
+              <Card className="p-4 border border-[#f0f0f0] shadow-[0_10px_30px_rgba(0,0,0,0.02)] h-fit sticky top-24">
                 <DocumentPreview
                   document={generatedDocument}
                   title={template.title}
