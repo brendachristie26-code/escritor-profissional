@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 
-export function generatePDF(content: string, filename: string) {
+export function generatePDF(content: string, filename: string, logoDataUrl?: string) {
   try {
     // Criar novo documento PDF
     const pdf = new jsPDF({
@@ -19,11 +19,20 @@ export function generatePDF(content: string, filename: string) {
     const margin = 20;
     const maxWidth = pageWidth - 2 * margin;
 
+    // Reservar espaço para o logotipo no cabeçalho quando houver upload.
+    let yPosition = margin;
+    if (logoDataUrl) {
+      const imageFormat = logoDataUrl.startsWith('data:image/jpeg') ? 'JPEG' : 'PNG';
+      const logoWidth = 42;
+      const logoHeight = 22;
+      pdf.addImage(logoDataUrl, imageFormat, (pageWidth - logoWidth) / 2, yPosition, logoWidth, logoHeight);
+      yPosition += logoHeight + 10;
+    }
+
     // Dividir texto em linhas
     const lines = pdf.splitTextToSize(content, maxWidth);
 
     // Adicionar texto ao PDF
-    let yPosition = margin;
     const lineHeight = 7;
     const maxLinesPerPage = Math.floor((pageHeight - 2 * margin) / lineHeight);
 

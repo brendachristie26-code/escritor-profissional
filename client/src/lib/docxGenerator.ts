@@ -1,12 +1,13 @@
 import {
   AlignmentType,
   Document,
+  ImageRun,
   Packer,
   Paragraph,
   TextRun,
 } from 'docx';
 
-export async function generateDOCX(content: string, filename: string): Promise<void> {
+export async function generateDOCX(content: string, filename: string, logoDataUrl?: string): Promise<void> {
   const lines = content.split('\n');
   const children = lines.map((line, index) => {
     const isHeading = index < 2 && line.trim().length > 2 && line.trim() === line.trim().toUpperCase();
@@ -25,6 +26,22 @@ export async function generateDOCX(content: string, filename: string): Promise<v
     });
   });
 
+  const logoChildren = logoDataUrl
+    ? [
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 180 },
+          children: [
+            new ImageRun({
+              data: logoDataUrl.split(',')[1] ?? '',
+              type: logoDataUrl.startsWith('data:image/jpeg') ? 'jpg' : 'png',
+              transformation: { width: 160, height: 80 },
+            }),
+          ],
+        }),
+      ]
+    : [];
+
   const document = new Document({
     sections: [
       {
@@ -38,7 +55,7 @@ export async function generateDOCX(content: string, filename: string): Promise<v
             },
           },
         },
-        children,
+        children: [...logoChildren, ...children],
       },
     ],
   });

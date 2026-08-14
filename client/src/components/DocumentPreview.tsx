@@ -11,6 +11,7 @@ interface DocumentPreviewProps {
   onEditModeChange: (mode: boolean) => void;
   editedDocument: string;
   onEditedDocumentChange: (doc: string) => void;
+  logoDataUrl: string;
 }
 
 export function DocumentPreview({
@@ -20,6 +21,7 @@ export function DocumentPreview({
   onEditModeChange,
   editedDocument,
   onEditedDocumentChange,
+  logoDataUrl,
 }: DocumentPreviewProps) {
   const displayDocument = editMode && editedDocument ? editedDocument : document;
 
@@ -73,7 +75,7 @@ export function DocumentPreview({
 
   const handleDownload = () => {
     try {
-      generatePDF(displayDocument, fileBasename);
+      generatePDF(displayDocument, fileBasename, logoDataUrl);
       toast.success('PDF baixado com sucesso!');
     } catch (error) {
       toast.error('Erro ao gerar PDF');
@@ -83,7 +85,7 @@ export function DocumentPreview({
 
   const handleDownloadDocx = async () => {
     try {
-      await generateDOCX(displayDocument, fileBasename);
+      await generateDOCX(displayDocument, fileBasename, logoDataUrl);
       toast.success('DOCX baixado com sucesso!');
     } catch (error) {
       toast.error('Erro ao gerar DOCX');
@@ -117,8 +119,17 @@ export function DocumentPreview({
         /* Estilo Folha A4 Premium */
         <div className="bg-gray-100 p-8 rounded-lg min-h-96 flex items-center justify-center">
           <div className="bg-white w-full max-w-2xl p-12 rounded-lg shadow-lg border border-gray-200">
+            {logoDataUrl && (
+              <div className="mb-5 flex justify-center border-b border-gray-100 pb-4">
+                <img
+                  src={logoDataUrl}
+                  alt="Logotipo da empresa no cabeçalho"
+                  className="max-h-20 max-w-48 object-contain"
+                />
+              </div>
+            )}
             <div className="whitespace-pre-wrap text-sm leading-relaxed font-serif text-foreground overflow-y-auto max-h-96">
-              {displayDocument}
+              {displayDocument || 'Preencha o formulário para visualizar o documento.'}
             </div>
           </div>
         </div>

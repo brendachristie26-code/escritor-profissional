@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { DocumentForm } from '@/components/DocumentForm';
 import { DocumentPreview } from '@/components/DocumentPreview';
 import { DocumentSelector } from '@/components/DocumentSelector';
+import { LogoUploader } from '@/components/LogoUploader';
 import { DOCUMENT_TEMPLATES } from '@/../../shared/documentTypes';
 import { getExampleData } from '@/../../shared/exampleData';
 import {
@@ -24,6 +25,7 @@ export default function Home() {
   const [notice, setNotice] = useState<string | null>(null);
   const [headerModel, setHeaderModel] = useState<HeaderModelId>('classico');
   const [signatureModel, setSignatureModel] = useState<SignatureModelId>('formal');
+  const [logoDataUrl, setLogoDataUrl] = useState('');
   const [isHydrated, setIsHydrated] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -56,6 +58,7 @@ export default function Home() {
           formData?: Record<string, string>;
           headerModel?: HeaderModelId;
           signatureModel?: SignatureModelId;
+          logoDataUrl?: string;
         };
         if (parsed.selectedDoc && (DOCUMENT_TEMPLATES as any)[parsed.selectedDoc]) {
           setSelectedDoc(parsed.selectedDoc);
@@ -68,6 +71,9 @@ export default function Home() {
         }
         if (parsed.signatureModel && SIGNATURE_MODELS.some(model => model.id === parsed.signatureModel)) {
           setSignatureModel(parsed.signatureModel);
+        }
+        if (typeof parsed.logoDataUrl === 'string') {
+          setLogoDataUrl(parsed.logoDataUrl);
         }
       }
     } catch (error) {
@@ -83,12 +89,12 @@ export default function Home() {
     try {
       window.localStorage.setItem(
         'escritor-profissional-form',
-        JSON.stringify({ selectedDoc, formData, headerModel, signatureModel }),
+        JSON.stringify({ selectedDoc, formData, headerModel, signatureModel, logoDataUrl }),
       );
     } catch (error) {
       console.warn('Não foi possível salvar o formulário no navegador.', error);
     }
-  }, [selectedDoc, formData, headerModel, signatureModel, isHydrated]);
+  }, [selectedDoc, formData, headerModel, signatureModel, logoDataUrl, isHydrated]);
 
   // Ocultar o aviso automaticamente depois de alguns segundos.
   useEffect(() => {
@@ -130,6 +136,19 @@ export default function Home() {
     setEditMode(false);
     setEditedDocument('');
     setNotice('Modelo de assinatura atualizado.');
+  };
+
+  const handleLogoChange = (dataUrl: string) => {
+    setLogoDataUrl(dataUrl);
+    setEditMode(false);
+    setEditedDocument('');
+  };
+
+  const handleLogoRemove = () => {
+    setLogoDataUrl('');
+    setEditMode(false);
+    setEditedDocument('');
+    setNotice('Logotipo removido do documento.');
   };
 
   // Evitar mostrar valores indefinidos enquanto o formulário está vazio.
@@ -203,6 +222,11 @@ export default function Home() {
             <Card className="p-4 border border-[#f0f0f0] shadow-[0_10px_30px_rgba(0,0,0,0.02)] h-fit sticky top-24">
               <h2 className="text-lg font-bold mb-2 text-foreground">{template.title}</h2>
               <p className="text-xs text-muted-foreground mb-3">{template.description}</p>
+              <LogoUploader
+                logoDataUrl={logoDataUrl}
+                onLogoChange={handleLogoChange}
+                onRemove={handleLogoRemove}
+              />
               <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <label htmlFor="header-model" className="mb-1 block text-xs font-semibold text-foreground">
@@ -262,6 +286,7 @@ export default function Home() {
                   onEditModeChange={setEditMode}
                   editedDocument={editedDocument}
                   onEditedDocumentChange={setEditedDocument}
+                  logoDataUrl={logoDataUrl}
                 />
               </Card>
             </div>
