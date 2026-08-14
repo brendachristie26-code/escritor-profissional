@@ -9,9 +9,10 @@ interface DocumentFormProps {
   template: DocumentTemplate;
   formData: Record<string, string>;
   onFieldChange: (fieldId: string, value: string) => void;
+  onLoadExample?: () => void;
 }
 
-export function DocumentForm({ template, formData, onFieldChange }: DocumentFormProps) {
+export function DocumentForm({ template, formData, onFieldChange, onLoadExample }: DocumentFormProps) {
   const requiredFields = template.fields.filter(f => f.required);
   const filledRequiredFields = requiredFields.filter(f => formData[f.id]?.trim()).length;
   const completionPercentage = Math.round((filledRequiredFields / requiredFields.length) * 100);
@@ -24,9 +25,20 @@ export function DocumentForm({ template, formData, onFieldChange }: DocumentForm
     <div className="space-y-6">
       {/* Progress Bar - Destacada com Premium Look */}
       <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between gap-3 mb-3">
           <span className="text-sm font-bold text-foreground">Progresso do Formulário</span>
-          <span className="text-lg font-bold text-primary">{completionPercentage}%</span>
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-bold text-primary">{completionPercentage}%</span>
+            {onLoadExample && (
+              <button
+                type="button"
+                onClick={onLoadExample}
+                className="rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              >
+                Carregar Exemplo
+              </button>
+            )}
+          </div>
         </div>
         <div className="w-full bg-blue-200 rounded-full h-3 overflow-hidden shadow-sm">
           <div

@@ -6,6 +6,7 @@ import { DocumentForm } from '@/components/DocumentForm';
 import { DocumentPreview } from '@/components/DocumentPreview';
 import { DocumentSelector } from '@/components/DocumentSelector';
 import { DOCUMENT_TEMPLATES } from '@/../../shared/documentTypes';
+import { getExampleData } from '@/../../shared/exampleData';
 
 export default function Home() {
   const [selectedDoc, setSelectedDoc] = useState<any>('declaracao');
@@ -39,6 +40,12 @@ export default function Home() {
       ...prev,
       [fieldId]: value,
     }));
+  };
+
+  const handleLoadExample = () => {
+    setFormData(getExampleData(selectedDoc as any));
+    setEditMode(false);
+    setEditedDocument('');
   };
 
   // Gerar documento baseado no template e dados
@@ -97,6 +104,7 @@ export default function Home() {
                 template={template as any}
                 formData={formData}
                 onFieldChange={handleFieldChange}
+                onLoadExample={handleLoadExample}
               />
             </Card>
           </div>
