@@ -1,13 +1,13 @@
-# Tarefas — Persistência e ações do editor
+# Tarefas — DOCX e modelos de documento
 
-- [ ] Adicionar estado de aviso temporário para informar quando um exemplo for carregado ou o formulário for limpo.
-- [ ] Adicionar botão “Limpar formulário” ao lado de “Carregar Exemplo”.
-- [ ] Persistir automaticamente o formulário selecionado e seus dados no localStorage.
-- [ ] Restaurar o progresso salvo ao atualizar a página.
-- [ ] Adicionar botão “Copiar Texto” na área de visualização.
-- [ ] Validar limpeza, aviso, persistência e cópia do documento.
-- [ ] Salvar checkpoint da implementação.
+- [ ] Definir modelos de cabeçalho e assinatura.
+- [ ] Persistir a seleção dos modelos junto ao rascunho no navegador.
+- [ ] Adicionar os seletores de modelo à área de edição.
+- [ ] Aplicar cabeçalho e assinatura na visualização e no texto copiado.
+- [ ] Adicionar exportação adicional em formato DOCX.
+- [ ] Garantir que o PDF e o DOCX respeitem o modelo escolhido.
+- [ ] Validar os downloads e salvar checkpoint.
 
 ## Critérios de aceite
 
-A limpeza deve zerar os campos, o progresso e o texto editado. O aviso deve desaparecer automaticamente após alguns segundos. O formulário deve ser restaurado depois de uma atualização da página. A cópia deve usar o texto atualmente exibido e confirmar visualmente a ação.
+O usuário deve conseguir escolher um cabeçalho e uma assinatura sem sair da homepage. A escolha deve alterar imediatamente a visualização e permanecer após atualizar a página. O botão DOCX deve baixar um arquivo editável com o conteúdo atual, incluindo o modelo selecionado.

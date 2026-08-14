@@ -1,7 +1,8 @@
-import { Copy, Download, Printer } from 'lucide-react';
+import { Copy, Download, FileText, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { generatePDF } from '@/lib/pdfGenerator';
+import { generateDOCX } from '@/lib/docxGenerator';
 
 interface DocumentPreviewProps {
   document: string;
@@ -68,13 +69,24 @@ export function DocumentPreview({
     }
   };
 
+  const fileBasename = `${title.toLowerCase().replace(/\s+/g, '-')}-${new Date().getTime()}`;
+
   const handleDownload = () => {
     try {
-      const filename = `${title.toLowerCase().replace(/\s+/g, '-')}-${new Date().getTime()}`;
-      generatePDF(displayDocument, filename);
+      generatePDF(displayDocument, fileBasename);
       toast.success('PDF baixado com sucesso!');
     } catch (error) {
       toast.error('Erro ao gerar PDF');
+      console.error(error);
+    }
+  };
+
+  const handleDownloadDocx = async () => {
+    try {
+      await generateDOCX(displayDocument, fileBasename);
+      toast.success('DOCX baixado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao gerar DOCX');
       console.error(error);
     }
   };
@@ -113,7 +125,7 @@ export function DocumentPreview({
       )}
 
       {/* Action Buttons */}
-      <div className="grid grid-cols-3 gap-3 pt-2">
+      <div className="grid grid-cols-2 gap-3 pt-2 sm:grid-cols-4">
         <Button
           onClick={handleCopy}
           variant="outline"
@@ -139,7 +151,16 @@ export function DocumentPreview({
           title="Baixar documento como arquivo PDF"
         >
           <Download size={18} />
-          <span className="hidden sm:inline">PDF</span>
+          <span>PDF</span>
+        </Button>
+        <Button
+          onClick={handleDownloadDocx}
+          variant="outline"
+          className="w-full flex items-center justify-center gap-2 h-12 hover:bg-primary hover:text-primary-foreground transition-all"
+          title="Baixar documento como arquivo DOCX editável"
+        >
+          <FileText size={18} />
+          <span>DOCX</span>
         </Button>
       </div>
     </div>

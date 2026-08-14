@@ -7,6 +7,13 @@ import { DocumentPreview } from '@/components/DocumentPreview';
 import { DocumentSelector } from '@/components/DocumentSelector';
 import { DOCUMENT_TEMPLATES } from '@/../../shared/documentTypes';
 import { getExampleData } from '@/../../shared/exampleData';
+import {
+  HEADER_MODELS,
+  SIGNATURE_MODELS,
+  composeDocument,
+  HeaderModelId,
+  SignatureModelId,
+} from '@/../../shared/documentModels';
 
 export default function Home() {
   const [selectedDoc, setSelectedDoc] = useState<any>('declaracao');
@@ -15,6 +22,8 @@ export default function Home() {
   const [editedDocument, setEditedDocument] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [headerModel, setHeaderModel] = useState<HeaderModelId>('classico');
+  const [signatureModel, setSignatureModel] = useState<SignatureModelId>('formal');
   const [isHydrated, setIsHydrated] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -42,12 +51,23 @@ export default function Home() {
     try {
       const saved = window.localStorage.getItem('escritor-profissional-form');
       if (saved) {
-        const parsed = JSON.parse(saved) as { selectedDoc?: string; formData?: Record<string, string> };
+        const parsed = JSON.parse(saved) as {
+          selectedDoc?: string;
+          formData?: Record<string, string>;
+          headerModel?: HeaderModelId;
+          signatureModel?: SignatureModelId;
+        };
         if (parsed.selectedDoc && (DOCUMENT_TEMPLATES as any)[parsed.selectedDoc]) {
           setSelectedDoc(parsed.selectedDoc);
         }
         if (parsed.formData && typeof parsed.formData === 'object') {
           setFormData(parsed.formData);
+        }
+        if (parsed.headerModel && HEADER_MODELS.some(model => model.id === parsed.headerModel)) {
+          setHeaderModel(parsed.headerModel);
+        }
+        if (parsed.signatureModel && SIGNATURE_MODELS.some(model => model.id === parsed.signatureModel)) {
+          setSignatureModel(parsed.signatureModel);
         }
       }
     } catch (error) {
@@ -63,12 +83,12 @@ export default function Home() {
     try {
       window.localStorage.setItem(
         'escritor-profissional-form',
-        JSON.stringify({ selectedDoc, formData }),
+        JSON.stringify({ selectedDoc, formData, headerModel, signatureModel }),
       );
     } catch (error) {
       console.warn('Não foi possível salvar o formulário no navegador.', error);
     }
-  }, [selectedDoc, formData, isHydrated]);
+  }, [selectedDoc, formData, headerModel, signatureModel, isHydrated]);
 
   // Ocultar o aviso automaticamente depois de alguns segundos.
   useEffect(() => {
@@ -98,9 +118,31 @@ export default function Home() {
     setNotice('Formulário limpo. Seus dados foram removidos desta sessão.');
   };
 
+  const handleHeaderModelChange = (value: HeaderModelId) => {
+    setHeaderModel(value);
+    setEditMode(false);
+    setEditedDocument('');
+    setNotice('Modelo de cabeçalho atualizado.');
+  };
+
+  const handleSignatureModelChange = (value: SignatureModelId) => {
+    setSignatureModel(value);
+    setEditMode(false);
+    setEditedDocument('');
+    setNotice('Modelo de assinatura atualizado.');
+  };
+
   // Evitar mostrar valores indefinidos enquanto o formulário está vazio.
   const hasFormData = Object.values(formData).some(value => value?.trim());
-  const generatedDocument = hasFormData ? (template as any).template(formData) : '';
+  const authorName = formData.nome || formData.seu_nome || formData.aluno || formData.recebedor || formData.solicitante || 'Responsável';
+  const baseDocument = hasFormData ? (template as any).template(formData) : '';
+  const generatedDocument = composeDocument(
+    baseDocument,
+    template.title,
+    headerModel,
+    signatureModel,
+    authorName,
+  );
 
   // Auto-scroll para preview quando documento é gerado
   useEffect(() => {
@@ -161,6 +203,44 @@ export default function Home() {
             <Card className="p-4 border border-[#f0f0f0] shadow-[0_10px_30px_rgba(0,0,0,0.02)] h-fit sticky top-24">
               <h2 className="text-lg font-bold mb-2 text-foreground">{template.title}</h2>
               <p className="text-xs text-muted-foreground mb-3">{template.description}</p>
+              <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="header-model" className="mb-1 block text-xs font-semibold text-foreground">
+                    Modelo de cabeçalho
+                  </label>
+                  <select
+                    id="header-model"
+                    value={headerModel}
+                    onChange={(event) => handleHeaderModelChange(event.target.value as HeaderModelId)}
+                    className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground shadow-sm outline-none transition focus:ring-2 focus:ring-primary"
+                  >
+                    {HEADER_MODELS.map(model => (
+                      <option key={model.id} value={model.id}>{model.name}</option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {HEADER_MODELS.find(model => model.id === headerModel)?.description}
+                  </p>
+                </div>
+                <div>
+                  <label htmlFor="signature-model" className="mb-1 block text-xs font-semibold text-foreground">
+                    Modelo de assinatura
+                  </label>
+                  <select
+                    id="signature-model"
+                    value={signatureModel}
+                    onChange={(event) => handleSignatureModelChange(event.target.value as SignatureModelId)}
+                    className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground shadow-sm outline-none transition focus:ring-2 focus:ring-primary"
+                  >
+                    {SIGNATURE_MODELS.map(model => (
+                      <option key={model.id} value={model.id}>{model.name}</option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {SIGNATURE_MODELS.find(model => model.id === signatureModel)?.description}
+                  </p>
+                </div>
+              </div>
               <DocumentForm
                 template={template as any}
                 formData={formData}
