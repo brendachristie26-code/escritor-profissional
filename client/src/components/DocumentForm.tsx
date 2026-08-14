@@ -10,9 +10,10 @@ interface DocumentFormProps {
   formData: Record<string, string>;
   onFieldChange: (fieldId: string, value: string) => void;
   onLoadExample?: () => void;
+  onClearForm?: () => void;
 }
 
-export function DocumentForm({ template, formData, onFieldChange, onLoadExample }: DocumentFormProps) {
+export function DocumentForm({ template, formData, onFieldChange, onLoadExample, onClearForm }: DocumentFormProps) {
   const requiredFields = template.fields.filter(f => f.required);
   const filledRequiredFields = requiredFields.filter(f => formData[f.id]?.trim()).length;
   const completionPercentage = Math.round((filledRequiredFields / requiredFields.length) * 100);
@@ -29,14 +30,27 @@ export function DocumentForm({ template, formData, onFieldChange, onLoadExample 
           <span className="text-sm font-bold text-foreground">Progresso do Formulário</span>
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold text-primary">{completionPercentage}%</span>
-            {onLoadExample && (
-              <button
-                type="button"
-                onClick={onLoadExample}
-                className="rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-              >
-                Carregar Exemplo
-              </button>
+            {(onLoadExample || onClearForm) && (
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                {onLoadExample && (
+                  <button
+                    type="button"
+                    onClick={onLoadExample}
+                    className="rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                  >
+                    Carregar Exemplo
+                  </button>
+                )}
+                {onClearForm && (
+                  <button
+                    type="button"
+                    onClick={onClearForm}
+                    className="rounded-md border border-blue-200 bg-white px-3 py-2 text-xs font-semibold text-blue-700 shadow-sm transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                  >
+                    Limpar formulário
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>

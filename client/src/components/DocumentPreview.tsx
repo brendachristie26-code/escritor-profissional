@@ -118,10 +118,10 @@ export function DocumentPreview({
           onClick={handleCopy}
           variant="outline"
           className="w-full flex items-center justify-center gap-2 h-12 hover:bg-primary hover:text-primary-foreground transition-all"
-          title="Copiar documento para área de transferência"
+          title="Copiar texto do documento para a área de transferência"
         >
           <Copy size={18} />
-          <span className="hidden sm:inline">Copiar</span>
+          <span className="hidden sm:inline">Copiar Texto</span>
         </Button>
         <Button
           onClick={handlePrint}

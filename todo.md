@@ -1,19 +1,13 @@
-# Tarefas — Carregar Exemplo
+# Tarefas — Persistência e ações do editor
 
-- [ ] Recriar os dados fictícios para os 28 tipos de documento.
-- [ ] Adicionar o callback de preenchimento automático ao DocumentForm.
-- [ ] Integrar o callback ao Home.tsx usando o tipo de documento selecionado.
-- [ ] Verificar os campos e a visualização após o preenchimento de um exemplo.
-- [ ] Salvar checkpoint da implementação concluída.
+- [ ] Adicionar estado de aviso temporário para informar quando um exemplo for carregado ou o formulário for limpo.
+- [ ] Adicionar botão “Limpar formulário” ao lado de “Carregar Exemplo”.
+- [ ] Persistir automaticamente o formulário selecionado e seus dados no localStorage.
+- [ ] Restaurar o progresso salvo ao atualizar a página.
+- [ ] Adicionar botão “Copiar Texto” na área de visualização.
+- [ ] Validar limpeza, aviso, persistência e cópia do documento.
+- [ ] Salvar checkpoint da implementação.
 
 ## Critérios de aceite
 
-- O botão “Carregar Exemplo” aparece de forma clara no formulário.
-- Um clique preenche todos os campos correspondentes ao documento selecionado.
-- O indicador de progresso é atualizado e a visualização deixa de exibir valores indefinidos.
-- A funcionalidade continua responsiva em telas menores.
-- Os dados são fictícios e permanecem apenas no navegador.
-
-## Estado
-
-Implementação perdida após restauração para o checkpoint 35ca533a; reimplementação em andamento.
+A limpeza deve zerar os campos, o progresso e o texto editado. O aviso deve desaparecer automaticamente após alguns segundos. O formulário deve ser restaurado depois de uma atualização da página. A cópia deve usar o texto atualmente exibido e confirmar visualmente a ação.

@@ -14,6 +14,8 @@ export default function Home() {
   const [editMode, setEditMode] = useState(false);
   const [editedDocument, setEditedDocument] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
   const template = (DOCUMENT_TEMPLATES as any)[selectedDoc] || Object.values(DOCUMENT_TEMPLATES)[0];
@@ -35,6 +37,46 @@ export default function Home() {
     setEditedDocument('');
   };
 
+  // Restaurar o último documento e os dados salvos no navegador.
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem('escritor-profissional-form');
+      if (saved) {
+        const parsed = JSON.parse(saved) as { selectedDoc?: string; formData?: Record<string, string> };
+        if (parsed.selectedDoc && (DOCUMENT_TEMPLATES as any)[parsed.selectedDoc]) {
+          setSelectedDoc(parsed.selectedDoc);
+        }
+        if (parsed.formData && typeof parsed.formData === 'object') {
+          setFormData(parsed.formData);
+        }
+      }
+    } catch (error) {
+      console.warn('Não foi possível restaurar o formulário salvo.', error);
+    } finally {
+      setIsHydrated(true);
+    }
+  }, []);
+
+  // Salvar automaticamente o documento atual sem enviar dados para nenhum servidor.
+  useEffect(() => {
+    if (!isHydrated) return;
+    try {
+      window.localStorage.setItem(
+        'escritor-profissional-form',
+        JSON.stringify({ selectedDoc, formData }),
+      );
+    } catch (error) {
+      console.warn('Não foi possível salvar o formulário no navegador.', error);
+    }
+  }, [selectedDoc, formData, isHydrated]);
+
+  // Ocultar o aviso automaticamente depois de alguns segundos.
+  useEffect(() => {
+    if (!notice) return;
+    const timeoutId = window.setTimeout(() => setNotice(null), 3000);
+    return () => window.clearTimeout(timeoutId);
+  }, [notice]);
+
   const handleFieldChange = (fieldId: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -46,10 +88,19 @@ export default function Home() {
     setFormData(getExampleData(selectedDoc as any));
     setEditMode(false);
     setEditedDocument('');
+    setNotice('Exemplo carregado. Você pode editar qualquer campo antes de copiar ou baixar.');
   };
 
-  // Gerar documento baseado no template e dados
-  const generatedDocument = (template as any).template(formData);
+  const handleClearForm = () => {
+    setFormData({});
+    setEditMode(false);
+    setEditedDocument('');
+    setNotice('Formulário limpo. Seus dados foram removidos desta sessão.');
+  };
+
+  // Evitar mostrar valores indefinidos enquanto o formulário está vazio.
+  const hasFormData = Object.values(formData).some(value => value?.trim());
+  const generatedDocument = hasFormData ? (template as any).template(formData) : '';
 
   // Auto-scroll para preview quando documento é gerado
   useEffect(() => {
@@ -60,6 +111,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
+      {notice && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed right-4 top-20 z-[60] max-w-sm rounded-lg border border-blue-200 bg-white px-4 py-3 text-sm font-medium text-blue-800 shadow-lg"
+        >
+          {notice}
+        </div>
+      )}
+
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-card">
         <div className="container py-4 flex items-center justify-between">
@@ -105,6 +166,7 @@ export default function Home() {
                 formData={formData}
                 onFieldChange={handleFieldChange}
                 onLoadExample={handleLoadExample}
+                onClearForm={handleClearForm}
               />
             </Card>
           </div>
@@ -131,7 +193,7 @@ export default function Home() {
       <footer className="border-t border-border bg-card mt-16">
         <div className="container py-8 text-center text-sm text-muted-foreground">
           <p>Escritor Profissional © 2026 - Gerador de Documentos Formais</p>
-          <p className="mt-2">Todos os documentos são gerados localmente no seu navegador. Nenhum dado é armazenado.</p>
+          <p className="mt-2">Todos os documentos são gerados localmente. Seu progresso fica salvo apenas neste navegador.</p>
         </div>
       </footer>
     </div>
